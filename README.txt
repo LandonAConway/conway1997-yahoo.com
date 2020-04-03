@@ -18,4 +18,4 @@ Place this folder inside Minetest Directory>mods
 
 SUPPORT
 ==============================
-Report bugs here on GitHub
+Report bugs here on GitHub https://github.com/LandonAConway/online_shopping
