@@ -1,0 +1,4 @@
+default
+dye
+currency
+basic_materials
