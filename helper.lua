@@ -24,3 +24,12 @@ function o_s_methods.join_string(list, sep)
 	
 	return table.concat(list, sep)
 end
+
+function online_shop.player_is_online(player_name)
+	for _, player in ipairs(minetest.get_connected_players()) do
+		if player_name == player:get_player_name() == true then
+			return true
+		end
+	end
+	return false
+end

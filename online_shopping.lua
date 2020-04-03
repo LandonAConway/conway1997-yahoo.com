@@ -1,9 +1,14 @@
 minetest.register_chatcommand("online_shopping", {
-	params = "<store_name>",
+	params = "",
 	privs = { shout = true },
 	description = "Shows the online shopping interface.",
 	func = function(name, text)
-		minetest.show_formspec(name, "online_shop:os_formspec", online_shop.shopping_ui(-1, name))
+		local stores = online_shop.list_stores()
+		if table.concat(stores) ~= nil and table.concat(stores) ~= "" then
+			minetest.show_formspec(name, "online_shop:os_formspec", online_shop.shopping_ui(-1, name))
+		else
+			return false, "There are no stores."
+		end
 	end,
 })
 

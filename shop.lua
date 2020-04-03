@@ -37,17 +37,23 @@ minetest.register_node("online_shop:shop_server", {
 	sounds = default.node_sound_wood_defaults(),
 	
 	after_place_node = function(pos, placer, itemstack)
-		local owner = placer:get_player_name()
-		local meta = minetest.get_meta(pos)
-		meta:set_string("infotext", "Shopping Server (owned by "..owner..")")
-		meta:set_string("owner", owner)
-		local store_name = meta:set_string("store_name", "")
-		local item_label = meta:set_string("item_label", "")
-		local inv = meta:get_inventory()
-		inv:set_size("customers_gave", 4*2)
-		inv:set_size("stock", 4*2)
-		inv:set_size("owner_wants", 4*2)
-		inv:set_size("owner_gives", 4*2)
+		local player_meta = placer:get_meta()
+		if player_meta:get_string("online_shop_banstate") ~= "banned" then
+			local owner = placer:get_player_name()
+			local meta = minetest.get_meta(pos)
+			meta:set_string("infotext", "Shopping Server (owned by "..owner..")")
+			meta:set_string("owner", owner)
+			local store_name = meta:set_string("store_name", "")
+			local item_label = meta:set_string("item_label", "")
+			local inv = meta:get_inventory()
+			inv:set_size("customers_gave", 4*2)
+			inv:set_size("stock", 4*2)
+			inv:set_size("owner_wants", 4*2)
+			inv:set_size("owner_gives", 4*2)
+		else
+			minetest.remove_node(pos)
+			minetest.chat_send_player(placer:get_player_name(), "You have been banned from creating Shop Servers")
+		end
 	end,
 	
 	on_destruct = function(pos)

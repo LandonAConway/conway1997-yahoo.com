@@ -69,15 +69,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
-function online_shop.player_is_online(player_name)
-	for _, player in ipairs(minetest.get_connected_players()) do
-		if player_name == player:get_player_name() == true then
-			return true
-		end
-	end
-	return false
-end
-
 function online_shop.delete_shop(shop_name)
 	if online_shop.store_exists(shop_name) == true then
 		local pos_list = online_shop.pos_list_as_table(shop_name)
