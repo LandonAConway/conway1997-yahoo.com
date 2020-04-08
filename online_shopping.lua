@@ -71,9 +71,9 @@ function online_shop.shopping_ui(index, player_name, owner_name)
 	
 	local formspec = "size[14,12]"..
 		"label[0,0;Shops:]"..
-		"textlist[0,0.5;5,5;shops;"..shopslist.."]"..
+		"textlist[0,0.5;5,5;shops;"..shopslist..";"..index..";transparent]"..
 		"label[0,6;Items Sold:]"..
-		"textlist[0,6.5;5,5;shop_items;"..available_items..";"..index..";transparent]"..
+		"textlist[0,6.5;5,5;shop_items;"..available_items..";1"..";transparent]"..
 		"label[0,11.5;Shop Owner: "..owner_name.."]"..
 		"label[5.5,0;You give (Pay here):]"..
 		"list[detached:online_customer_gives_"..player_name..";main;5.5,0.5;4,2;]"..
@@ -86,6 +86,11 @@ function online_shop.shopping_ui(index, player_name, owner_name)
 		"button[5.5,6.5;4,0.8;exchange;Exchange]"..
 		"button_exit[10,6.5;4,0.8;exit;Exit]"..
 		"list[current_player;main;5.75,7.5;8,4;]"
+		
+	--If player is owner then add button
+	if player_name == owner_name then
+		formspec = formspec.."button[10,5.7;4,0.8;manage;Manage]"
+	end
 	
 	return formspec
 end
@@ -105,7 +110,17 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					local shop_owner = online_shop.get_shop_owner(storename)
 					local name = player:get_player_name()
 					shop_index = shops_event.index
-					local shopping_formspec = online_shop.shopping_ui(shops_event.index, name, shop_owner)
+					local shopping_formspec = online_shop.shopping_ui(shop_index, name, shop_owner)
+					
+					local pos_list = online_shop.pos_list_as_table(storename)
+					local selected_pos = pos_list[1]
+					if selected_pos ~= nil and selected_pos ~= "" then
+						local meta = minetest.get_meta(minetest.string_to_pos(selected_pos))
+						online_shop.get_want(player, meta, minetest.string_to_pos(selected_pos))
+						online_shop.get_give(player, meta, minetest.string_to_pos(selected_pos))
+						player_meta:set_string("selected_shop_pos", selected_pos)
+					end
+					
 					minetest.show_formspec(name, "online_shop:os_formspec", shopping_formspec)
 				end
 			end
@@ -132,6 +147,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				local meta = minetest.get_meta(pos)
 				online_shop.exchange(player, meta, pos)
 			end
+		elseif fields.manage then
+			local selected_shop_name = player_meta:get_string("selected_shop_name")
+			local selected_shop_pos = player_meta:get_string("selected_shop_pos")
+			local pos = minetest.string_to_pos(selected_shop_pos)
+			online_shop.open_shop_formspec(player:get_player_name(), pos)
 		end
 	end
 end)
@@ -252,6 +272,24 @@ function online_shop.get_give(player, meta, pos)
 	
 	for _, stack_ in pairs(node_inv_list) do
 		owner_wants:add_item("main", stack_)
+	end
+end
+
+function online_shop.open_shop_formspec(player_name, pos)
+	mod_storage.set_value("last_pos", minetest.pos_to_string(pos))
+	mod_storage.set_value("last_store_owner", player_name)
+	local player = minetest.get_player_by_name(player_name)
+	local meta = minetest.get_meta(pos)
+	if player_name == meta:get_string("owner") and not player:get_player_control().aux1 then
+		minetest.show_formspec(player_name, "online_shop:shop_server_formspec", online_shop.shop_server(pos))
+		local msv = meta:get_string("store_name")
+		mod_storage.set_value("original_store_name", msv)
+	elseif minetest.check_player_privs(player_name, { online_shop_admin = true }) then
+		minetest.show_formspec(player_name, "online_shop:shop_server_formspec", online_shop.shop_server(pos))
+		local msv = meta:get_string("store_name")
+		mod_storage.set_value("original_store_name", msv)
+	else
+		minetest.chat_send_player(player_name, "You do not own this shop server.")
 	end
 end
 
