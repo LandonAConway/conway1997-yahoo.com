@@ -1,4 +1,4 @@
-Online Shopping v1.0
+Online Shop v1.0
 
 
 DESCRIPTION
