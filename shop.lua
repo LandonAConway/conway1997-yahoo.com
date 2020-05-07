@@ -118,23 +118,11 @@ minetest.register_on_player_receive_fields(function(sender, formname, fields)
 		local pos = minetest.string_to_pos(last_pos)
 		local meta = minetest.get_meta(pos)
 		
-		if fields.store_name ~= "" and fields.item_label ~= "" and not string.find(fields.store_name, "|") then
-			if online_shop.store_exists(fields.store_name) == false then
-				online_shop.add_to_shop(last_store_owner, fields.store_name, last_pos)
-				online_shop.set_shop_owner(fields.store_name, last_store_owner)
-				meta:set_string("store_name", fields.store_name)
-				meta:set_string("item_label", fields.item_label)
-				
-				online_shop.update_shop_pos(original_store_name, fields.store_name, last_store_owner, last_pos)
-				
-				online_shop.add_store(fields.store_name)
-				online_shop.update_stores()
-				
-				minetest.chat_send_player(last_store_owner, "Operation succeeded. Store server complete")
-			else
-				local owner = online_shop.get_shop_owner(fields.store_name)
-				if owner == last_store_owner then
+		if fields.store_name ~= nil and fields.store_name ~= "" and fields.item_label ~= nil and fields.item_label ~= "" then
+			if not string.find(fields.store_name, "|") then
+				if online_shop.store_exists(fields.store_name) == false then
 					online_shop.add_to_shop(last_store_owner, fields.store_name, last_pos)
+					online_shop.set_shop_owner(fields.store_name, last_store_owner)
 					meta:set_string("store_name", fields.store_name)
 					meta:set_string("item_label", fields.item_label)
 					
@@ -142,11 +130,27 @@ minetest.register_on_player_receive_fields(function(sender, formname, fields)
 					
 					online_shop.add_store(fields.store_name)
 					online_shop.update_stores()
-				
+					
 					minetest.chat_send_player(last_store_owner, "Operation succeeded. Store server complete")
 				else
-					minetest.chat_send_player(last_store_owner, "Operation failed. This store is already owned by "..owner)
+					local owner = online_shop.get_shop_owner(fields.store_name)
+					if owner == last_store_owner then
+						online_shop.add_to_shop(last_store_owner, fields.store_name, last_pos)
+						meta:set_string("store_name", fields.store_name)
+						meta:set_string("item_label", fields.item_label)
+						
+						online_shop.update_shop_pos(original_store_name, fields.store_name, last_store_owner, last_pos)
+						
+						online_shop.add_store(fields.store_name)
+						online_shop.update_stores()
+					
+						minetest.chat_send_player(last_store_owner, "Operation succeeded. Store server complete")
+					else
+						minetest.chat_send_player(last_store_owner, "Operation failed. This store is already owned by "..owner)
+					end
 				end
+			else
+				minetest.chat_send_player(last_store_owner, "Operation failed. Enter a valid 'Store Name' and 'Item Label'.")
 			end
 		else
 			minetest.chat_send_player(last_store_owner, "Operation failed. Enter a valid 'Store Name' and 'Item Label'.")
