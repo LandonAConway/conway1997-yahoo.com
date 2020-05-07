@@ -119,7 +119,7 @@ minetest.register_on_player_receive_fields(function(sender, formname, fields)
 		local meta = minetest.get_meta(pos)
 		
 		if fields.store_name ~= nil and fields.store_name ~= "" and fields.item_label ~= nil and fields.item_label ~= "" then
-			if not string.find(fields.store_name, "|") then
+			if not string.find(fields.store_name, "|") and not string.find(fields.item_label, "|") then
 				if online_shop.store_exists(fields.store_name) == false then
 					online_shop.add_to_shop(last_store_owner, fields.store_name, last_pos)
 					online_shop.set_shop_owner(fields.store_name, last_store_owner)
