@@ -3,6 +3,8 @@ function online_shop.shop_server(pos)
 	local meta = minetest.get_meta(pos)
 	local store_name_t = meta:get_string("store_name")
 	local item_label_t = meta:get_string("item_label")
+	if store_name_t == nil or store_name_t == "" then store_name_t = "" end
+	if item_label_t == nil or item_label_t == "" then item_label_t = "" end
 	local formspec = "size[8.5,11.5]"..
 		"label[0,0;" .. "Customers gave:" .. "]"..
 		"list["..list_name..";customers_gave;0,0.5;4,2;]"..
@@ -12,7 +14,7 @@ function online_shop.shop_server(pos)
 		"list["..list_name..";owner_wants;4.5,0.5;4,2;]"..
 		"label[4.5,2.5;" .. "In exchange, you give:" .. "]"..
 		"list["..list_name..";owner_gives;4.5,3;4,2;]"..
-		"field[0.3,5.548;4,1;store_name;Store Name:;"..store_name_t..";]"..
+		"field[0.3,5.548;4,1;store_name;Store Name:;"..store_name_t.."]"..
 		"button_exit[5,5.2;3,1;finish;Finish]"..
 		"field[0.3,6.7;4,1;item_label;Item Label (i.e. 99 Clay Blocks for 10mg):;"..item_label_t.."]"..
 		"list[current_player;main;0.25,7.5;8,4;]"
